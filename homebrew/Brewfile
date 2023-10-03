@@ -2,6 +2,7 @@
 brew "tmux"
 brew "zsh"
 brew "zsh-syntax-highlighting"
+brew "jq"
 
 # vim tools
 brew "vim"

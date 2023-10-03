@@ -15,3 +15,9 @@ gbs() {
         echo Could not find branch \""$1"\"
     fi
 }
+
+cleanup () {
+  git checkout master;
+  git pull;
+  git branch | egrep -v "(^\*|master|test|qa)" | xargs git branch -D;
+}
