@@ -10,8 +10,8 @@ for fname in $(find ~/mydotfiles/zsh -name ".*" ! -name "*.sh*"); do
     filename=$(basename "$fname")
     filename_source="$HOME/$filename"
     filename_target="$HOME/$filename.$timestamp"
-    mv "$filename_source" "$filename_target"
-    ln -s "$fname" "$HOME/$filename"
+    cp "$filename_source" "$filename_target"
+    ln -sf "$fname" "$HOME/$filename"
 done
 
 # Link config dot files
@@ -19,9 +19,29 @@ for fname in $(find ~/mydotfiles/configs -name ".*" ! -name "*.sh*"); do
     filename=$(basename "$fname")
     filename_source="$HOME/$filename"
     filename_target="$HOME/$filename.$timestamp"
-    mv "$filename_source" "$filename_target"
-    ln -s "$fname" "$HOME/$filename"
+    cp "$filename_source" "$filename_target"
+    ln -sf "$fname" "$HOME/$filename"
 done
 
+# Link tmux conf
+for fname in $(find ~/mydotfiles/tmux -name ".tmux*"); do
+    filename=$(basename "$fname")
+    filename_source="$HOME/$filename"
+    filename_target="$HOME/$filename.$timestamp"
+    cp "$filename_source" "$filename_target"
+    ln -sf "$fname" "$HOME/$filename"
+done
+
+# Brewfile conf
+for fname in $(find ~/mydotfiles/homebrew -name "Brewfile"); do
+    filename=$(basename "$fname")
+    filename_source="$HOME/$filename"
+    filename_target="$HOME/$filename.$timestamp"
+    cp "$filename_source" "$filename_target"
+    ln -sf "$fname" "$HOME/$filename"
+done
+cd ~
+brew bundle
+cd -
 
 echo "Installation completed."

@@ -1,0 +1,12 @@
+# shell tools
+brew "tmux"
+brew "zsh"
+brew "zsh-syntax-highlighting"
+
+# vim tools
+brew "vim"
+brew "aspell"
+brew "ctags"
+
+# search tools
+brew "the_silver_searcher"
