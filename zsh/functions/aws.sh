@@ -19,3 +19,15 @@ role() {
   export AWS_SECRET_ACCESS_KEY=$(echo $OUTPUT | jq -r '.[1]')
   export AWS_SESSION_TOKEN=$(echo $OUTPUT | jq -r '.[2]')
 }
+
+a () {
+  if [ -z $1 ]; then
+    jq -r ".accountList | sort_by(.accountName)[] | [.accountId,.accountName] |  @tsv" ~/.aws/sso_accounts.json;
+  else
+    if [[ $1 =~ '^[0-9]+$' ]]; then
+      jq -r ".accountList[] | select( .accountId == \"$1\" ) | .accountName" ~/.aws/sso_accounts.json;
+    else
+      jq -r ".accountList | sort_by(.accountName)[] | [.accountId,.accountName] |  @tsv" ~/.aws/sso_accounts.json | grep $1
+    fi;
+  fi;
+}
