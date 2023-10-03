@@ -1,0 +1,2 @@
+# Ignore secret environment variables
+/zsh/secrets/*
