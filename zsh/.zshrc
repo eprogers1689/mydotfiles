@@ -175,10 +175,11 @@ _compare_aws_pulumi_account(){
 
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
+# https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
 PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code%{$fg[green]%}%(!.#. $)%{$reset_color%} '
 
-# z Jump Around - https://github.com/rupa/z
+# z Jump Around - https://github.com/rupa/z - installed via git clone and sourced below
 source ~/z/z.sh
 
-# zsh syntax highlighting
+# zsh syntax highlighting - installed via homebrew (see Brewfile)
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
