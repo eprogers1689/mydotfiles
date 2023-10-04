@@ -183,3 +183,6 @@ source ~/z/z.sh
 
 # zsh syntax highlighting - installed via homebrew (see Brewfile)
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/ethan.rogers/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)

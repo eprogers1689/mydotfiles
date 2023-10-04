@@ -1,3 +1,10 @@
+ecr(){
+  assume rs-cicd;
+  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 674907502808.dkr.ecr.us-east-1.amazonaws.com;
+  aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 058238361356.dkr.ecr.us-east-1.amazonaws.com;
+  assume --un
+}
+
 ssm-list() {
   aws ssm get-parameters-by-path --path "/" --recursive --query 'Parameters[].Name' | jq -r '.[]' | grep $1
 }
