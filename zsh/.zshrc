@@ -154,8 +154,11 @@ _get_aws_account(){
 }
 
 _get_pulumi_backend_account(){
-  PULUMI_ACCOUNT_NUMBER=$(jq -r .current ~/.pulumi/credentials.json | cut -d '-' -f4)
-  jq -r ".accountList[] | select( .accountId == \"$PULUMI_ACCOUNT_NUMBER\" ) | .accountName" ~/.aws/sso_accounts.json | tr a-z A-Z
+  PULUMI_CREDS_FILE=~/.pulumi/credentials.json
+  if test -f "$PULUMI_CREDS_FILE"; then
+    PULUMI_ACCOUNT_NUMBER=$(jq -r .current $PULUMI_CREDS_FILE | cut -d '-' -f4)
+    echo $(jq -r ".accountList[] | select( .accountId == \"$PULUMI_ACCOUNT_NUMBER\" ) | .accountName" ~/.aws/sso_accounts.json | tr a-z A-Z)
+  fi
 }
 
 _compare_aws_pulumi_account(){
