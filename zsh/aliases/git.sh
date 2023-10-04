@@ -11,4 +11,4 @@ alias gds="git diff --staged"
 alias grs="git remote set-url origin"
 alias m='(git checkout master 2> /dev/null || git checkout main) && git pull;'
 
-# alias git='nocorrect git' # use this when I have autocorrect setup
+alias git='nocorrect git' # disable auto correct with git
