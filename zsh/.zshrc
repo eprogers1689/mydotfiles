@@ -175,7 +175,7 @@ _compare_aws_pulumi_account(){
 
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$( _get_aws_account) $( _compare_aws_pulumi_account) $exit_code%{$fg[green]%}%(!.#. ᐅ)%{$fg[yellow]%}%(!.#.ᐅ)%{$fg_bold[red]%}%(!.#.ᐅ)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code%{$fg[green]%}%(!.#. $)%{$reset_color%} '
 
 # z Jump Around - https://github.com/rupa/z
 source ~/z/z.sh
