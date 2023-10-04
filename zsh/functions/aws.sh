@@ -12,9 +12,9 @@ ssm-put() {
 
 role() {
   OUTPUT=$(aws sts assume-role \
---role-arn arn:aws:iam::${1}:role/${2} \
---role-session-name ashwin \
---query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]")
+  --role-arn arn:aws:iam::${1}:role/${2} \
+  --role-session-name ashwin \
+  --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]")
   export AWS_ACCESS_KEY_ID=$(echo $OUTPUT | jq -r '.[0]')
   export AWS_SECRET_ACCESS_KEY=$(echo $OUTPUT | jq -r '.[1]')
   export AWS_SESSION_TOKEN=$(echo $OUTPUT | jq -r '.[2]')
