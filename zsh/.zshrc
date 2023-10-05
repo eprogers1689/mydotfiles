@@ -131,52 +131,7 @@ done
 set -o vi
 
 # Prompt
-_fishy_collapsed_wd() {
-  echo $(pwd | perl -pe "
-   BEGIN {
-      binmode STDIN,  ':encoding(UTF-8)';
-      binmode STDOUT, ':encoding(UTF-8)';
-   }; s|^$HOME|~|g; s|/([^/])[^/]*(?=/)|/\$1|g
-")
-}
-
-_get_aws_account(){
-  aws_account_name=${AWS_PROFILE:u}
-  if [[ "$aws_account_name" =~ "TEST" ]]; then
-    echo "%{$fg_bold[green]%} $aws_account_name"
-  elif [[ "$aws_account_name" =~ "QA" ]]; then
-    echo "%{$fg_bold[yellow]%} $aws_account_name"
-  elif [[ "$aws_account_name" =~ "PROD" ]]; then
-    echo "%{$fg_bold[red]%} $aws_account_name"
-  else
-    echo "%{$fg_bold[blue]%} $aws_account_name"
-  fi
-}
-
-_get_pulumi_backend_account(){
-  PULUMI_CREDS_FILE=~/.pulumi/credentials.json
-  if test -f "$PULUMI_CREDS_FILE"; then
-    PULUMI_ACCOUNT_NUMBER=$(jq -r .current $PULUMI_CREDS_FILE | cut -d '-' -f4)
-    echo $(jq -r ".accountList[] | select( .accountId == \"$PULUMI_ACCOUNT_NUMBER\" ) | .accountName" ~/.aws/sso_accounts.json | tr a-z A-Z)
-  fi
-}
-
-_compare_aws_pulumi_account(){
-  PULUMI=$( _get_pulumi_backend_account)
-  AWS_ACCOUNT_NAME=${AWS_PROFILE:u}
-  if [ ! -z ${AWS_PROFILE+x} ] && [ -n "$PULUMI" ]; then
-    if [[ "$AWS_ACCOUNT_NAME" =~ "$PULUMI" ]]; then
-      echo '🏆'
-    else
-      echo '❌'
-    fi
-  fi
-}
-
-exit_code='%(?.👌.👎)'
-local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
-# https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+source ~/.zsh_prompt
 
 # z Jump Around - https://github.com/rupa/z - installed via git clone and sourced below
 source ~/z/z.sh
