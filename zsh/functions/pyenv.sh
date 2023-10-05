@@ -3,6 +3,7 @@
 cd() {
  builtin cd "$@"
  unset NODE_NAME
+ deactivate > /dev/null 2>&1
  workon_virtualenv
 }
 #===============================================================================
@@ -20,7 +21,7 @@ workon_virtualenv() {
  fi
  fi
 }
-workon_virtualenv
+
 # Make virtualenv <<2
 #--------------------------------------------------------------------
 # If we create a virtualenv, put it in ~/.pyenv/versions to allow for
