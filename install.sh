@@ -40,6 +40,7 @@ for fname in $(find ~/mydotfiles/homebrew -name "Brewfile"); do
     cp "$filename_source" "$filename_target"
     ln -sf "$fname" "$HOME/$filename"
 done
+
 cd ~
 brew bundle
 cd -

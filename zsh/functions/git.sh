@@ -22,17 +22,15 @@ function cleanup(){
   git branch | egrep -v "(^\*|master|test|qa)" | xargs git branch -D;
 }
 
-# TODO: setup gitlab in pyenv and configure creds so this works
-#clonegh() {
-#  cd ~/projects && \
-#  git clone git@github.com:lampo/$1.git 2> /dev/null || git clone $(/Users/ethan.rogers/.pyenv/shims/gitlab -o json project list --owned true --search $1 | jq -r --arg REPO "$1" '.[] | select(.path==$REPO) | .ssh_url_to_repo');
-#  cd $1
-#}
-#
-#
-#clonegl() {
+clone() {
+ cd ~/projects && \
+ git clone git@github.com:lampo/$1.git 2> /dev/null || git clone $(/Users/ethan.rogers/.pyenv/shims/gitlab -o json project list --owned true --search $1 | jq -r --arg REPO "$1" '.[] | select(.path==$REPO) | .ssh_url_to_repo');
+ cd $1
+}
+
+# clonegl() {
 #  cd ~/projects && \
 #  REPO=$(gitlab -o json project list --owned true --search $1 | jq -r --arg REPO "$1" '.[] | select(.path==$REPO) | .ssh_url_to_repo')
 #  git clone $REPO;
 #  cd $1
-#}
+# }

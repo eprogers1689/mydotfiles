@@ -1,2 +1,3 @@
 # Ignore secret environment variables
 /zsh/secrets/*
+/configs/.python-gitlab.cfg
