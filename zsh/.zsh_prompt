@@ -71,7 +71,13 @@ _git_statuses() {
         statuses+=" %{$fg[gray]%}${stashes}%{$reset_color%}"
     fi
 
-    echo "($statuses)"
+   if [[ -z "${statuses}" ]]; then
+        echo ""
+    else
+        # Trim leading whitespace using sed
+        statuses=$(echo "${statuses}" | sed -e 's/^[[:space:]]*//')
+        echo "($statuses)"
+    fi
 }
 
 exit_code='%(?.👌.👎)'
