@@ -11,13 +11,13 @@ _fishy_collapsed_wd() {
 _get_aws_account(){
   aws_account_name=${AWS_PROFILE:u}
   if [[ "$aws_account_name" =~ "TEST" ]]; then
-    echo "%{$fg_bold[green]%} $aws_account_name"
+    echo "%{$fg_bold[green]%} $aws_account_name%{$reset_color%}"
   elif [[ "$aws_account_name" =~ "QA" ]]; then
-    echo "%{$fg_bold[yellow]%} $aws_account_name"
+    echo "%{$fg_bold[yellow]%} $aws_account_name"%{$reset_color%}
   elif [[ "$aws_account_name" =~ "PROD" ]]; then
-    echo "%{$fg_bold[red]%} $aws_account_name"
+    echo "%{$fg_bold[red]%} $aws_account_name"%{$reset_color%}
   else
-    echo "%{$fg_bold[blue]%} $aws_account_name"
+    echo "%{$fg_bold[blue]%} $aws_account_name"%{$reset_color%}
   fi
 }
 
@@ -39,6 +39,16 @@ _compare_aws_pulumi_account(){
       echo '❌'
     fi
   fi
+}
+
+_git_branch(){
+    # Check if we're in a Git repository
+    if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        echo ""
+        return
+    fi
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    echo "(%{$fg_bold[blue]%}${branch}%{$reset_color%})"
 }
 
 _git_statuses() {
@@ -83,4 +93,4 @@ _git_statuses() {
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code $(git_prompt_info)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code$(_git_branch)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
