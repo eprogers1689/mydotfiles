@@ -16,6 +16,7 @@ j () {
       echo "  tickets                   List Jira issues in 'Backlog Pullable' status."
       echo "  backlog                   List Jira issues in 'Backlog' or 'Backlog Pullable' status."
       echo "  mine                      List Jira issues assigned to you."
+      echo "  minedone                  List Jira issues assigned to you that were resolved in last 30 days."
       echo "  create <ticket> [label] [description] Create a new Jira issue."
       echo "  move <ticket> <status>    Move a Jira issue to a specified status."
       echo "  help                      Display this help message."
@@ -30,10 +31,11 @@ j () {
 		(tickets) jira issue list -q "project in $RamseyProjectList AND status = 'Backlog Pullable' AND 'High Availability Team' = 'Web Systems - WS' OR project = 'WS' AND status = 'Backlog Pullable'" --plain --reverse ;;
 		(backlog) jira issue list -t "~Epic" -s "Backlog" -s "Backlog Pullable" --reverse --plain -q '("High Availability Team" = "Web Systems - WS" AND status = Backlog AND NOT project = "Web Systems") OR (project = "Web Systems" AND "Epic Link" is EMPTY AND status = Backlog)' ;;
 		(mine) jira issue list -a $(jira me) --plain -q "project in $RamseyProjectList AND status not in (Done,Aborted,Discarded,Abandon)" ;;
+		(minedone) jira issue list -a $(jira me) --plain -q "project in $RamseyProjectList AND status = 'Done' AND resolved >= -30d" ;;
 		(create) jira issue create -t "Systems Engineering" -s $TICKET -l ${3:-'ws-capability'} -b ${4:-" "} --no-input ;;
 		(move) jira issue $1 $TICKET $3 ;;
-    (s) j mine | grep -Eo '[A-Z]+-[0-9]+' | awk -v line_number=$2 'NR==line_number' | tr -d '\n' | pbcopy ;;
-    (ts) j tickets | grep -Eo '[A-Z]+-[0-9]+' | awk -v line_number=$2 'NR==line_number' | tr -d '\n' | pbcopy ;;
+        (s) j mine | grep -Eo '[A-Z]+-[0-9]+' | awk -v line_number=$2 'NR==line_number' | tr -d '\n' | pbcopy ;;
+        (ts) j tickets | grep -Eo '[A-Z]+-[0-9]+' | awk -v line_number=$2 'NR==line_number' | tr -d '\n' | pbcopy ;;
 		(*) jira issue $@ ;;
 	esac
 }
