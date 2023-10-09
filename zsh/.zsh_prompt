@@ -64,11 +64,11 @@ _git_statuses() {
     fi
 
     if [[ ${untracked} != 0 ]] ; then
-        statuses+=" %{$fg[yellow]%}${untracked}%{$reset_color%}"
+        statuses+=" %{$fg[gray]%}${untracked}%{$reset_color%}"
     fi
 
     if [[ ${stashes} != 0 ]] ; then
-        statuses+=" %{$fg[gray]%}${stashes}%{$reset_color%}"
+        statuses+=" %{$fg[yellow]%}${stashes}%{$reset_color%}"
     fi
 
    if [[ -z "${statuses}" ]]; then
