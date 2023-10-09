@@ -86,7 +86,7 @@ _git_statuses() {
     else
         # Trim leading whitespace using sed
         statuses=$(echo "${statuses}" | sed -e 's/^[[:space:]]*//')
-        echo "($statuses)"
+        echo "[$statuses]"
     fi
 }
 
