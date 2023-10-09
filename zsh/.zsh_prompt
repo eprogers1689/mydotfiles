@@ -41,7 +41,40 @@ _compare_aws_pulumi_account(){
   fi
 }
 
+_git_statuses() {
+      # Check if we're in a Git repository
+    if ! git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+        echo ""
+        return
+    fi
+    git status -s >| /tmp/gitstatus.txt
+    staged=$( cat /tmp/gitstatus.txt | grep -c "^[MARCD]")
+    unstaged=$( cat /tmp/gitstatus.txt | grep -c "^.[MARCD]")
+    untracked=$( cat /tmp/gitstatus.txt | grep -c "^\?")
+    stashes=$(git stash list 2>/dev/null | wc -l | sed -e 's/^[ \t]*//')
+
+    local statuses
+
+    if [[ ${staged} != 0 ]] ; then
+        statuses+=" %{$fg[green]%}${staged}%{$reset_color%}"
+    fi
+
+    if [[ ${unstaged} != 0 ]] ; then
+        statuses+=" %{$fg[red]%}${unstaged}%{$reset_color%}"
+    fi
+
+    if [[ ${untracked} != 0 ]] ; then
+        statuses+=" %{$fg[yellow]%}${untracked}%{$reset_color%}"
+    fi
+
+    if [[ ${stashes} != 0 ]] ; then
+        statuses+=" %{$fg[gray]%}${stashes}%{$reset_color%}"
+    fi
+
+    echo "($statuses)"
+}
+
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code $(git_prompt_info)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
