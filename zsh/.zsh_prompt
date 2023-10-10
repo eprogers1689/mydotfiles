@@ -34,9 +34,9 @@ _compare_aws_pulumi_account(){
   AWS_ACCOUNT_NAME=${AWS_PROFILE:u}
   if [ ! -z ${AWS_PROFILE+x} ] && [ -n "$PULUMI" ]; then
     if [[ "$AWS_ACCOUNT_NAME" =~ "$PULUMI" ]]; then
-      echo '🏆'
+      echo ' 🏆'
     else
-      echo '❌'
+      echo ' ❌'
     fi
   fi
 }
