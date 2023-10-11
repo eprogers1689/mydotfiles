@@ -10,7 +10,7 @@
     deleted = red
     untracked = yellow
 [user]
-	name = Ethan Rogers
-	email = ethan.rogers@daveramsey.com
+    name = Ethan Rogers
+    email = ethan.rogers@daveramsey.com
 [push]
-    default = matching
+    autoSetupRemote = true
