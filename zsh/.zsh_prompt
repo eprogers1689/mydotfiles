@@ -90,6 +90,9 @@ _git_statuses() {
     fi
 }
 
+# See if this fixes my prompt issue, this is almost exaclty what is going wrong for me...
+# TODO: https://stackoverflow.com/questions/17931764/zsh-tab-completion-messes-up-command-line-formatting#answer-74531933
+
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
