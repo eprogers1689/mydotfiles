@@ -21,6 +21,7 @@ _get_aws_account(){
   fi
 }
 
+# Get pulumi backend account number
 _get_pulumi_backend_account(){
   if [[ ! -z "$PULUMI_BACKEND_URL" ]]; then
     PULUMI_ACCOUNT_NUMBER=$(echo $PULUMI_BACKEND_URL | cut -d '-' -f4)
@@ -28,6 +29,7 @@ _get_pulumi_backend_account(){
   fi
 }
 
+# Check of Pulumi backend matches current AWS profile
 _compare_aws_pulumi_account(){
   PULUMI=$( _get_pulumi_backend_account)
   AWS_ACCOUNT_NAME=${AWS_PROFILE:u}

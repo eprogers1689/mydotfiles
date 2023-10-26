@@ -10,6 +10,7 @@ showstate(){
     aws s3 cp "${STATE_BUCKET}/.pulumi/stacks/${STACK_NAME}.json" - | code -
 }
 
+# Pulumi Login - by setting PULUMI_BACKEND_URL
 pl(){
     AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
     PULUMI_BACKEND_URL="s3://rs-pulumi-state-$AWS_ACCOUNT_ID"
@@ -18,6 +19,7 @@ pl(){
     export PULUMI_BACKEND_URL=$PULUMI_BACKEND_URL
 }
 
+# Pulumi logout - by unsetting PULUMI_BACKEND_URL
 plo(){
   if [[ ! -z "$PULUMI_BACKEND_URL" ]]; then
     echo "Logging out of: $PULUMI_BACKEND_URL"
