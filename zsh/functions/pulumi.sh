@@ -28,3 +28,10 @@ plo(){
     echo "Already logged out of pulumi..."
   fi
 }
+
+v () {
+    STACK_NAME=$(pwd | cut -d '/' -f 5)
+    VERSION=$(pulumi stack export --stack $STACK_NAME | jq -r --arg STACK $STACK_NAME '.deployment.resources[] | select(.type == "aws:ecs/taskDefinition:TaskDefinition").inputs.containerDefinitions | fromjson | map(select(.name == $STACK))[0].image' | cut -d ':' -f 2)
+    echo $VERSION
+    export VERSION=$VERSION
+}

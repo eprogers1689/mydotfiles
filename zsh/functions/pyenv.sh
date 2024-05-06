@@ -1,11 +1,11 @@
 #Run the virtual environments functions for the prompt on each cd <<2
 # -------------------------------------------------------------------
-cd() {
- builtin cd "$@"
- unset NODE_NAME
- deactivate > /dev/null 2>&1
- workon_virtualenv
-}
+# cd() {
+#  builtin cd "$@"
+#  unset NODE_NAME
+#  deactivate > /dev/null 2>&1
+#  workon_virtualenv
+# }
 #===============================================================================
 # Workon virtualenv <<2
 #--------------------------------------------------------------------

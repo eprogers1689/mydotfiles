@@ -71,3 +71,43 @@ a() {
     fi
   fi
 }
+
+rds-creds () {
+  ROLE_NAME=$1
+  selected_db=$2
+  if [ -z "$ROLE_NAME" ]; then
+    echo "please pass in role name as first arg. example: rds-creds someteam_dev"
+    return 1
+  fi
+
+  if [ -z "$selected_db" ]; then
+    db_clusters=$(aws rds describe-db-clusters --query 'DBClusters[].DBClusterIdentifier' --output text)
+    if [ -z "$db_clusters" ]; then
+        echo "No DB clusters found."
+        return 1
+    fi
+    echo "Select a db:"
+    index=1
+    echo "$db_clusters" | tr '\t' '\n' | while read -r db; do
+        echo "$index: $db"
+        ((index++))
+    done
+    echo "Enter a number: "
+    read choice
+    if ! [[ "$choice" =~ ^[1-9][0-9]*$ ]] || [ "$choice" -gt "$index" ] || [ "$choice" -lt 1 ]; then
+        echo "Invalid choice. Please enter a valid number."
+        return 1
+    fi
+    selected_db=$( echo $db_clusters| awk -v var=$choice -F'\t' '{print $var}')
+    echo "You selected: $selected_db"
+  fi
+  RDS_CLUSTER_INFO=$(aws rds describe-db-clusters --db-cluster-identifier "$selected_db" --output json 2>/dev/null)
+  if [ -z "$RDS_CLUSTER_INFO" ]; then
+      echo "No valid RDS cluster selected."
+  else
+      RDS_HOSTNAME=$(echo "$RDS_CLUSTER_INFO" | jq -r '.DBClusters[0].Endpoint')
+      RDS_PORT=$(echo "$RDS_CLUSTER_INFO" | jq -r '.DBClusters[0].Port')
+      echo "\nHere are creds you can use with your preferred DB Client:"
+      aws rds generate-db-auth-token --username "$ROLE_NAME" --hostname "$RDS_HOSTNAME" --port "$RDS_PORT" --region us-east-1
+  fi
+}

@@ -91,7 +91,19 @@ _git_statuses() {
     fi
 }
 
+_get_pulumi_stack() {
+  local directory="./config"
+  if [[ ! -d "$directory" ]]; then
+    return 0
+  fi
+  local file=$(find "$directory" -maxdepth 1 -type f -name "Pulumi.*.yaml" | head -n 1)
+  if [[ -n "$file" ]]; then
+    local stackname=$(basename "$file" | sed 's/Pulumi.\(.*\)\.yaml/\1/')
+    echo "${lines_color} [🥞${lightgray}$stackname${lines_color}] %{$reset%}"
+  fi
+}
+
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$exit_code$(_git_branch)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$(_get_pulumi_stack)$exit_code$(_git_branch)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
