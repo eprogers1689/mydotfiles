@@ -111,3 +111,16 @@ rds-creds () {
       aws rds generate-db-auth-token --username "$ROLE_NAME" --hostname "$RDS_HOSTNAME" --port "$RDS_PORT" --region us-east-1
   fi
 }
+
+st () {
+  assume systems-test
+}
+
+sq () {
+  assume systems-qa
+}
+
+sp () {
+  assume systems-prod
+}
+

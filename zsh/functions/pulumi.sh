@@ -35,3 +35,8 @@ v () {
     echo $VERSION
     export VERSION=$VERSION
 }
+
+nuke () {
+  echo "💣 Nuking stack: $1"
+  pl && p stack select $1 && p destroy --yes && p stack rm --yes
+}
