@@ -18,3 +18,10 @@ manager(){
     instance_id=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names $1 --query 'AutoScalingGroups[0].Instances[0].InstanceId' --output text)
     runner $instance_id
 }
+
+clone() {
+ cd ~/projects && \
+ git clone $(/Users/ethan.rogers/.pyenv/shims/gitlab -o json project list --owned true --search $1 | jq -r --arg REPO "$1" '.[] | select(.path==$REPO) | .ssh_url_to_repo');
+ cd $1
+ code .
+}
