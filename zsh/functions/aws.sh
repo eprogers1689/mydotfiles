@@ -6,7 +6,7 @@ ecr(){
 }
 
 ssm-list() {
-  aws ssm get-parameters-by-path --path "/" --recursive --query 'Parameters[].Name' | jq -r '.[]' | grep $1
+  aws ssm get-parameters-by-path --path $1 --recursive --query 'Parameters[].Name' | jq -r '.[]'
 }
 
 ssm-get() {
@@ -123,4 +123,3 @@ sq () {
 sp () {
   assume systems-prod
 }
-
