@@ -6,21 +6,26 @@ ecr(){
 }
 
 ssm-list() {
-  aws ssm get-parameters-by-path --path $1 --recursive --query 'Parameters[].Name' | jq -r '.[]'
+  aws ssm get-parameters-by-path --path $1 --recursive --query 'Parameters[].Name' --no-cli-pager | jq -r '.[]'
 }
 
 ssm-get() {
-  aws ssm get-parameter --with-decryption  --query 'Parameter.Value' --output text --name $1 | tr -d '\n' | pbcopy
+  aws ssm get-parameter --with-decryption  --query 'Parameter.Value' --output text --name $1 --no-cli-pager | tr -d '\n' | pbcopy
 }
 
 ssm-put() {
-  aws ssm put-parameter --name $1 --type SecureString --value $2
+  aws ssm put-parameter --name $1 --type SecureString --value $2 --no-cli-pager
+}
+
+ssm-copy(){
+  VALUE=$(aws ssm get-parameter --with-decryption  --query 'Parameter.Value' --output text --name $1 --no-cli-pager | tr -d '\n' )
+  ssm-put $2 $VALUE
 }
 
 role() {
   OUTPUT=$(aws sts assume-role \
   --role-arn arn:aws:iam::${1}:role/${2} \
-  --role-session-name ashwin \
+  --role-session-name ethan \
   --query "Credentials.[AccessKeyId,SecretAccessKey,SessionToken]")
   export AWS_ACCESS_KEY_ID=$(echo $OUTPUT | jq -r '.[0]')
   export AWS_SECRET_ACCESS_KEY=$(echo $OUTPUT | jq -r '.[1]')
