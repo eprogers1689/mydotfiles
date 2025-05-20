@@ -142,3 +142,5 @@ export PATH="/Users/ethan.rogers/.asdf/shims:$PATH"
 
 # zsh syntax highlighting - installed via homebrew (see Brewfile)
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"

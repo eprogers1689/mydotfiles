@@ -41,5 +41,5 @@ j () {
 }
 
 # TODO: put this in a file and then source it then write a function to update whenever Chad breaks it...
-export RamseyProjectList="('ACCH','AN','AUTO','BS','CE','CIAM','CME','CONPROD','CRM','CRMSD','DATA','DATAREQ','DEBIT','DNA','DT','EMAIL','ENTRE','ES','FPC','FWCRM','FWOPS','GW','HRIS','INNER','INT','IT','ITINFRA','ITOPS','JA','JIRA','LE','MARTECH','MM','MMT','MR', 'MULE','NETWORK','NS','NSD','OPT','PER','PHOTO','PJM','PM','PR','PROC','PRODUCT','PUB','PUBLICITY','RECRM','RMCRM','RPLUS','RSCOM','RSMOR','SD','SOCIAL','STAFF','STAFF2','STS','TEST','TOURS','TRAIN','TRUSTED','VIDEO','WS','ZDSK')"
+export RamseyProjectList="('ACCH','AN','AUTO','BS','CE','CIAM','CME','CONPROD','CRM','CRMSD','DATA','DATAREQ','DEBIT','DNA','DT','EMAIL','ENTRE','ES','FPC','FWCRM','FWOPS','GW','HRIS','INNER','INT','IT','ITINFRA','ITOPS','JA','JIRA','LE','MARTECH','MM','MMT','MR', 'MULE','NETWORK','NS','NSD','OPT','PER','PHOTO','PJM','PM','PR','PROC','PRODUCT','PUB','RECRM','RMCRM','RPLUS','RSCOM','RSMOR','SD','SOCIAL','STAFF','STAFF2','STS','TEST','TOURS','TRAIN','TRUSTED','VIDEO','WS','ZDSK')"
 

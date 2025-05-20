@@ -42,6 +42,7 @@ a() {
         echo -n "$matched_account" | awk '{print $2}' | tr -d '\n' | pbcopy
         account_name=$(echo -n "$matched_account" | awk '{print $2}' | tr -d '\n')
         account_id=$(echo -n "$matched_account" | awk '{print $1}' | tr -d '\n')
+
         echo -e "Copied: $account_name \e[90m($account_id)\e[0m"
       else
         echo "No account found with the provided account ID: $1"
@@ -127,4 +128,8 @@ sq () {
 
 sp () {
   assume systems-prod
+}
+
+ecs() {
+
 }

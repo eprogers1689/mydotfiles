@@ -31,9 +31,27 @@ plo(){
 
 v () {
     STACK_NAME=$(pwd | cut -d '/' -f 5)
-    VERSION=$(pulumi stack export --stack $STACK_NAME | jq -r --arg STACK $STACK_NAME '.deployment.resources[] | select(.type == "aws:ecs/taskDefinition:TaskDefinition").inputs.containerDefinitions | fromjson | map(select(.name == $STACK))[0].image' | cut -d ':' -f 2)
-    echo $VERSION
+    TASK_DEF=$(pulumi stack export --stack "$STACK_NAME" | jq '
+        .deployment.resources[]
+        | select(.type == "aws:ecs/taskDefinition:TaskDefinition")
+    ')
+    CONTAINER_DEF=$(echo "$TASK_DEF" | jq '
+        .inputs.containerDefinitions
+        | fromjson
+        | map(select(.name != "log_router"))[0]
+    ')
+
+    VERSION=$(echo "$CONTAINER_DEF" | jq -r '.image' | cut -d ':' -f 2)
+    TIMESTAMP=$(echo "$CONTAINER_DEF" | jq -r '.environment[] | select(.name == "TIMESTAMP").value')
+    CI_PROJECT_URL=$(echo "$TASK_DEF" | jq -r '.inputs.tags.repo')
+
+    echo "VERSION=$VERSION"
+    echo "TIMESTAMP=$TIMESTAMP"
+    echo "CI_PROJECT_URL=$CI_PROJECT_URL"
+
     export VERSION=$VERSION
+    export TIMESTAMP=$TIMESTAMP
+    export CI_PROJECT_URL=$CI_PROJECT_URL
 }
 
 nuke () {
