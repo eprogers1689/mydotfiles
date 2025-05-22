@@ -54,6 +54,33 @@ v () {
     export CI_PROJECT_URL=$CI_PROJECT_URL
 }
 
+vl () {
+    STACK_NAME=$(pwd | cut -d '/' -f 5)
+    LAMBDA_STATE=$(pulumi stack export --stack "$STACK_NAME" | jq '
+        .deployment.resources[]
+        | select(.type == "aws:lambda/function:Function")'
+    )
+
+    TIMESTAMP=$(echo "$LAMBDA_STATE" | jq -r '.inputs.environment.variables.TIMESTAMP')
+    S3_KEY=$(echo "$LAMBDA_STATE" | jq -r '.inputs.s3Key')
+    CI_PROJECT_URL=$(echo "$LAMBDA_STATE" | jq -r '.inputs.tags.repo')
+
+    IFS='/' read -r CI_PROJECT_NAME STACK_NAME2 VERSION LAMBDA_FUNCTION_NAME_ZIP <<< "$S3_KEY"
+    LAMBDA_FUNCTION_NAME="${LAMBDA_FUNCTION_NAME_ZIP%.zip}"
+
+    echo "CI_PROJECT_NAME: $CI_PROJECT_NAME"
+    echo "CI_PROJECT_URL=$CI_PROJECT_URL"
+    echo "LAMBDA_FUNCTION_NAME: $LAMBDA_FUNCTION_NAME"
+    echo "TIMESTAMP=$TIMESTAMP"
+    echo "VERSION: $VERSION"
+
+    export CI_PROJECT_NAME=$CI_PROJECT_NAME
+    export CI_PROJECT_URL=$CI_PROJECT_URL
+    export LAMBDA_FUNCTION_NAME=$LAMBDA_FUNCTION_NAME
+    export TIMESTAMP=$TIMESTAMP
+    export VERSION=$VERSION
+}
+
 nuke () {
   echo "💣 Nuking stack: $1"
   pl && p stack select $1 && p destroy --yes && p stack rm --yes
