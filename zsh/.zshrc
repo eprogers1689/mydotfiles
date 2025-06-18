@@ -144,3 +144,5 @@ export PATH="/Users/ethan.rogers/.asdf/shims:$PATH"
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
+
+export PATH="/Applications/IntelliJ IDEA.app/Contents/MacOS:$PATH"
