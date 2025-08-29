@@ -129,3 +129,20 @@ sq () {
 sp () {
   assume systems-prod
 }
+
+# use granted 'assume' to get temporary credentials and
+# put these creds in ~/.aws/credentials with [default]
+creds () {
+  rm ~/.aws/credentials
+  if [ -z "$1" ]; then
+    assume --export
+  else
+    assume $1 --export
+  fi
+  # rename first line to [default]
+  sed -i '' '1s/.*/[default]/' ~/.aws/credentials
+}
+
+cc () {
+  rm ~/.aws/credentials
+}

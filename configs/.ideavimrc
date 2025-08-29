@@ -1,0 +1,14 @@
+" vim-style split navigation mapped to IntelliJ actions
+map <C-h> <Action>(SelectPreviousTab) " or FocusLeft if using splits
+map <C-l> <Action>(SelectNextTab)     " or FocusRight
+map <C-j> <Action>(ActivateTerminalToolWindow)
+map <C-k> <Action>(MoveFocusToEditor)
+
+" Optional: If using editor splits:
+map <Leader>h <C-w>h
+map <Leader>l <C-w>l
+map <Leader>j <C-w>j
+map <Leader>k <C-w>k
+
+" make vim work with clipboard
+set clipboard+=unnamed

@@ -31,3 +31,4 @@ push() {
     echo $CLEAN_PR_URL | pbcopy
     open $CLEAN_PR_URL
 }
+

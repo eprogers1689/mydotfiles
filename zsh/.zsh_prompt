@@ -21,6 +21,14 @@ _get_aws_account(){
   fi
 }
 
+_creds_file_exists() {
+  if [ -f ~/.aws/credentials ]; then
+    echo 📜
+  else
+    echo ""
+  fi
+}
+
 # Get pulumi backend account number
 _get_pulumi_backend_account(){
   if [[ ! -z "$PULUMI_BACKEND_URL" ]]; then
@@ -106,4 +114,4 @@ _get_pulumi_stack() {
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_compare_aws_pulumi_account)$(_get_pulumi_stack)$exit_code$(_git_branch)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_creds_file_exists)$(_compare_aws_pulumi_account)$(_get_pulumi_stack)$exit_code$(_git_branch)%{$reset_color%}$(_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
