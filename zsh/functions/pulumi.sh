@@ -85,3 +85,132 @@ nuke () {
   echo "💣 Nuking stack: $1"
   pl && p stack select $1 && p destroy --yes && p stack rm --yes
 }
+
+# plocal - Lock S3 state, backup, download locally, switch to local backend
+plocal() {
+  local STACK_NAME="${1:-$(basename $(git rev-parse --show-toplevel 2>/dev/null))}"
+  if [ -z "$STACK_NAME" ]; then
+    echo "Error: No stack name provided and not in a git repo"
+    return 1
+  fi
+
+  local AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+  local STATE_BUCKET="s3://rs-pulumi-state-$AWS_ACCOUNT_ID"
+  local S3_STATE_PATH="${STATE_BUCKET}/.pulumi/stacks/${STACK_NAME}.json"
+  local LOCK_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+  local S3_LOCK_DIR="${STATE_BUCKET}/.pulumi/locks/${STACK_NAME}"
+  local S3_LOCK_PATH="${S3_LOCK_DIR}/${LOCK_UUID}.json"
+  local LOCAL_DIR="$HOME/.pulumi-local/.pulumi/stacks"
+  local BACKUP_DIR="$HOME/.pulumi-backups"
+  local TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+
+  echo "Stack: $STACK_NAME"
+  echo "S3 State: $S3_STATE_PATH"
+
+  # Check if any locks exist
+  local EXISTING_LOCKS=$(aws s3 ls "${S3_LOCK_DIR}/" 2>/dev/null)
+  if [ -n "$EXISTING_LOCKS" ]; then
+    echo "Error: Stack is currently locked!"
+    echo "Existing locks:"
+    for lock_file in $(echo "$EXISTING_LOCKS" | awk '{print $4}'); do
+      aws s3 cp "${S3_LOCK_DIR}/${lock_file}" - 2>/dev/null | jq -r '"  \(.username)@\(.hostname) (pid \(.pid)) at \(.timestamp)"'
+    done
+    echo "Use 'pulumi cancel' to remove stale locks."
+    return 1
+  fi
+
+  # Create lock in Pulumi's native format
+  local LOCK_CONTENT=$(jq -n \
+    --argjson pid $$ \
+    --arg username "$USER" \
+    --arg hostname "$(hostname)" \
+    --arg ts "$(date +%Y-%m-%dT%H:%M:%S.%N%z | sed 's/\([0-9]\{2\}\)\([0-9]\{2\}\)$/\1:\2/')" \
+    '{pid: $pid, username: $username, hostname: $hostname, timestamp: $ts}')
+  echo "$LOCK_CONTENT" | aws s3 cp - "$S3_LOCK_PATH" --quiet
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to create lock"
+    return 1
+  fi
+  echo "Lock acquired: $S3_LOCK_PATH"
+
+  # Store lock info for premote
+  export PLOCAL_LOCK_PATH="$S3_LOCK_PATH"
+  export PLOCAL_STACK_NAME="$STACK_NAME"
+
+  # Create directories
+  mkdir -p "$LOCAL_DIR" "$BACKUP_DIR"
+
+  # Download and backup
+  echo "Downloading state..."
+  aws s3 cp "$S3_STATE_PATH" "$BACKUP_DIR/${STACK_NAME}-${TIMESTAMP}.json" --quiet
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to download state. Releasing lock..."
+    aws s3 rm "$S3_LOCK_PATH" --quiet
+    return 1
+  fi
+  echo "Backup saved: $BACKUP_DIR/${STACK_NAME}-${TIMESTAMP}.json"
+
+  # Copy to local backend location
+  cp "$BACKUP_DIR/${STACK_NAME}-${TIMESTAMP}.json" "$LOCAL_DIR/${STACK_NAME}.json"
+
+  # Switch to local backend
+  export PULUMI_BACKEND_URL="file://$HOME/.pulumi-local"
+  echo "Switched to local backend: $PULUMI_BACKEND_URL"
+  echo "Ready to run pulumi commands locally"
+}
+
+# premote - Upload local state to S3, unlock, switch back to S3 backend
+premote() {
+  local STACK_NAME="${1:-${PLOCAL_STACK_NAME:-$(basename $(git rev-parse --show-toplevel 2>/dev/null))}}"
+  if [ -z "$STACK_NAME" ]; then
+    echo "Error: No stack name provided and not in a git repo"
+    return 1
+  fi
+
+  local AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+  local STATE_BUCKET="s3://rs-pulumi-state-$AWS_ACCOUNT_ID"
+  local S3_STATE_PATH="${STATE_BUCKET}/.pulumi/stacks/${STACK_NAME}.json"
+  local S3_LOCK_DIR="${STATE_BUCKET}/.pulumi/locks/${STACK_NAME}"
+  local LOCAL_STATE="$HOME/.pulumi-local/.pulumi/stacks/${STACK_NAME}.json"
+
+  echo "Stack: $STACK_NAME"
+
+  # Check local state exists
+  if [ ! -f "$LOCAL_STATE" ]; then
+    echo "Error: Local state not found at $LOCAL_STATE"
+    return 1
+  fi
+
+  # Upload state
+  echo "Uploading state to S3..."
+  aws s3 cp "$LOCAL_STATE" "$S3_STATE_PATH" --quiet
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to upload state"
+    return 1
+  fi
+  echo "State uploaded"
+
+  # Remove our lock (use stored path if available, otherwise find and remove our lock)
+  if [ -n "$PLOCAL_LOCK_PATH" ]; then
+    aws s3 rm "$PLOCAL_LOCK_PATH" --quiet
+    echo "Lock released: $PLOCAL_LOCK_PATH"
+    unset PLOCAL_LOCK_PATH
+    unset PLOCAL_STACK_NAME
+  else
+    # Find and remove lock owned by this user/host
+    local MY_HOSTNAME=$(hostname)
+    for lock_file in $(aws s3 ls "${S3_LOCK_DIR}/" 2>/dev/null | awk '{print $4}'); do
+      local LOCK_INFO=$(aws s3 cp "${S3_LOCK_DIR}/${lock_file}" - 2>/dev/null)
+      local LOCK_USER=$(echo "$LOCK_INFO" | jq -r '.username')
+      local LOCK_HOST=$(echo "$LOCK_INFO" | jq -r '.hostname')
+      if [ "$LOCK_USER" = "$USER" ] && [ "$LOCK_HOST" = "$MY_HOSTNAME" ]; then
+        aws s3 rm "${S3_LOCK_DIR}/${lock_file}" --quiet
+        echo "Lock released: ${S3_LOCK_DIR}/${lock_file}"
+        break
+      fi
+    done
+  fi
+
+  # Switch back to S3 backend
+  pl
+}
