@@ -30,7 +30,11 @@ plo(){
 }
 
 v () {
-    STACK_NAME=$(pwd | cut -d '/' -f 5)
+    if [ -n "$1" ]; then
+        STACK_NAME=$1
+    else
+        STACK_NAME=$(pwd | cut -d '/' -f 5)
+    fi
     TASK_DEF=$(pulumi stack export --stack "$STACK_NAME" | jq '
         .deployment.resources[]
         | select(.type == "aws:ecs/taskDefinition:TaskDefinition")
