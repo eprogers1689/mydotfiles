@@ -95,15 +95,30 @@ _prompt_git_statuses() {
 }
 
 _get_pulumi_stack() {
-  local directory="./config"
-  if [[ ! -d "$directory" ]]; then
-    return 0
+  # Skip if not a Pulumi project
+  [[ ! -f "Pulumi.yaml" ]] && return 0
+
+  # plocal mode is handled by _plocal_status(), so skip if that's active
+  [[ -n "$PLOCAL_STACK_NAME" ]] && return 0
+
+  local stackname=""
+
+  # Try workspace file first (fast, shows actually selected stack)
+  local hash=$(echo -n "$(pwd)" | shasum -a 256 | cut -d' ' -f1)
+  local workspace_file="$HOME/.pulumi/workspaces/${hash}.json"
+  if [[ -f "$workspace_file" ]]; then
+    stackname=$(jq -r '.stack // empty' "$workspace_file" 2>/dev/null)
   fi
-  local file=$(find "$directory" -maxdepth 1 -type f -name "Pulumi.*.yaml" | head -n 1)
-  if [[ -n "$file" ]]; then
-    local stackname=$(basename "$file" | sed 's/Pulumi.\(.*\)\.yaml/\1/')
-    echo "${lines_color} [🥞${lightgray}$stackname${lines_color}] %{$reset%}"
+
+  # Fallback: check for single stack config (no slow find)
+  if [[ -z "$stackname" ]]; then
+    local configs=(Pulumi.*.yaml(N) config/Pulumi.*.yaml(N))
+    if [[ ${#configs[@]} -eq 1 ]]; then
+      stackname=$(basename "${configs[1]}" | sed 's/Pulumi.\(.*\)\.yaml/\1/')
+    fi
   fi
+
+  [[ -n "$stackname" ]] && echo "${lines_color} [🥞${lightgray}$stackname${lines_color}] %{$reset%}"
 }
 
 exit_code='%(?.👌.👎)'
