@@ -138,8 +138,8 @@ source ~/.zsh_prompt
 # z Jump Around - https://github.com/rupa/z - installed via git clone and sourced below
 source ~/z/z.sh
 
-# asdf stuff
-export PATH="/Users/ethan.rogers/.asdf/shims:$PATH"
+# mise (asdf replacement)
+eval "$(mise activate zsh)"
 
 # zsh syntax highlighting - installed via homebrew (see Brewfile)
 source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
