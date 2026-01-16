@@ -9,5 +9,11 @@ brew "vim"
 brew "aspell"
 brew "ctags"
 
+# neovim and dependencies
+brew "neovim"
+brew "ripgrep"
+brew "fd"
+brew "node"
+
 # search tools
 brew "the_silver_searcher"

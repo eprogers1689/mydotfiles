@@ -54,6 +54,20 @@ for fname in $(find ~/mydotfiles/homebrew -name "Brewfile"); do
     ln -sf "$fname" "$HOME/$filename"
 done
 
+# Link Neovim config
+nvim_config_dir="$HOME/.config/nvim"
+nvim_source_dir="$HOME/mydotfiles/nvim"
+if [[ -d "$nvim_source_dir" ]]; then
+    mkdir -p "$HOME/.config"
+    if [[ -d "$nvim_config_dir" && ! -L "$nvim_config_dir" ]]; then
+        if [[ ! $1 == "yolo" ]]; then
+            mv "$nvim_config_dir" "$nvim_config_dir.$timestamp"
+        fi
+    fi
+    ln -sfn "$nvim_source_dir" "$nvim_config_dir"
+    echo "Linked Neovim config: $nvim_source_dir -> $nvim_config_dir"
+fi
+
 cd ~
 brew bundle
 cd -

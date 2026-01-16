@@ -1,5 +1,5 @@
-export EDITOR='vim'
-export VISUAL='vim'
+export EDITOR='nvim'
+export VISUAL='nvim'
 export GIT_EDITOR=$EDITOR
 export LESS='-imJMWR'
 export PAGER="less $LESS"
