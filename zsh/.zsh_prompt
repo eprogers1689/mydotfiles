@@ -121,6 +121,27 @@ _get_pulumi_stack() {
   [[ -n "$stackname" ]] && echo "${lines_color} [🥞${lightgray}$stackname${lines_color}] %{$reset%}"
 }
 
+# iTerm2 badge - shows repo:branch or just directory name
+# Also sets tab title to include working directory
+_set_iterm2_badge() {
+  local badge_text tab_title
+  if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    local repo=$(basename "$(git rev-parse --show-toplevel)")
+    local branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    badge_text="${repo}:${branch}"
+    tab_title="${repo}:${branch} - ${PWD/#$HOME/~}"
+  else
+    badge_text="${PWD##*/}"
+    tab_title="${PWD/#$HOME/~}"
+  fi
+  printf "\e]1337;SetBadgeFormat=%s\a" "$(echo -n "$badge_text" | base64)"
+  printf "\e]1;%s\a" "$tab_title"
+}
+
+# Add to precmd hooks so badge updates on each prompt
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _set_iterm2_badge
+
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html

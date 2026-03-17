@@ -147,3 +147,21 @@ source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zs
 export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
 
 export PATH="/Applications/IntelliJ IDEA.app/Contents/MacOS:$PATH"
+
+# BEGIN ramsey-cli managed block
+[ -f "$HOME/.ramsey/env" ] && . "$HOME/.ramsey/env"
+[ -x "$(command -v assume 2>/dev/null)" ] && alias assume="source assume"
+ramsey() {
+command ramsey "$@"
+local rc=$?
+case "$1" in
+login) ;;
+kafka-init) ;;
+-c) case "${2:-}" in login|kafka-init) ;; *) return $rc ;; esac ;;
+*) return $rc ;;
+esac
+[ $rc -eq 0 ] && [ -f "$HOME/.ramsey/env" ] && . "$HOME/.ramsey/env"
+[ $rc -eq 7 ] && eval $SHELL  # SHELL_RESTART_REQUESTED
+return $rc
+}
+# END ramsey-cli managed block
