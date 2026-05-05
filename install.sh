@@ -68,8 +68,13 @@ if [[ -d "$nvim_source_dir" ]]; then
     echo "Linked Neovim config: $nvim_source_dir -> $nvim_config_dir"
 fi
 
-cd ~
-brew bundle
-cd -
+if [[ " $* " == *"--brew"* ]]; then
+    echo "Running brew bundle..."
+    cd ~
+    brew bundle
+    cd -
+else
+    echo "Skipping brew bundle (pass --brew to install)"
+fi
 
 echo "Installation completed."
