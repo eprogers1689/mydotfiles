@@ -68,6 +68,11 @@ if [[ -d "$nvim_source_dir" ]]; then
     echo "Linked Neovim config: $nvim_source_dir -> $nvim_config_dir"
 fi
 
+# Link prun from rs-docker-pulumi-v2
+mkdir -p "$HOME/bin"
+ln -sf "$HOME/projects/rs-docker-pulumi-v2/bin/prun" "$HOME/bin/prun"
+echo "Linked prun -> ~/projects/rs-docker-pulumi-v2/bin/prun"
+
 if [[ " $* " == *"--brew"* ]]; then
     echo "Running brew bundle..."
     cd ~

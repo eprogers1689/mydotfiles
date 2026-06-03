@@ -90,6 +90,46 @@ nuke () {
   pl && p stack select $1 && p destroy --yes && p stack rm --yes
 }
 
+# plock - Acquire a Pulumi lock on the currently selected stack
+plock() {
+  local STACK_NAME=$(pulumi stack --show-name 2>/dev/null)
+  if [ -z "$STACK_NAME" ]; then
+    echo "Error: No stack selected. Run 'pulumi stack select <name>' first."
+    return 1
+  fi
+
+  local AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query 'Account' --output text)
+  local STATE_BUCKET="s3://rs-pulumi-state-$AWS_ACCOUNT_ID"
+  local S3_LOCK_DIR="${STATE_BUCKET}/.pulumi/locks/${STACK_NAME}"
+  local LOCK_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+  local S3_LOCK_PATH="${S3_LOCK_DIR}/${LOCK_UUID}.json"
+
+  local EXISTING_LOCKS=$(aws s3 ls "${S3_LOCK_DIR}/" 2>/dev/null)
+  if [ -n "$EXISTING_LOCKS" ]; then
+    echo "Error: Stack '$STACK_NAME' is currently locked!"
+    echo "Existing locks:"
+    for lock_file in $(echo "$EXISTING_LOCKS" | awk '{print $4}'); do
+      aws s3 cp "${S3_LOCK_DIR}/${lock_file}" - 2>/dev/null | jq -r '"  \(.username)@\(.hostname) (pid \(.pid)) at \(.timestamp)"'
+    done
+    echo "Use 'pulumi cancel' to remove stale locks."
+    return 1
+  fi
+
+  local LOCK_CONTENT=$(jq -n \
+    --argjson pid $$ \
+    --arg username "$USER" \
+    --arg hostname "$(hostname)" \
+    --arg ts "$(date +%Y-%m-%dT%H:%M:%S.%N%z | sed 's/\([0-9]\{2\}\)\([0-9]\{2\}\)$/\1:\2/')" \
+    '{pid: $pid, username: $username, hostname: $hostname, timestamp: $ts}')
+  echo "$LOCK_CONTENT" | aws s3 cp - "$S3_LOCK_PATH" --quiet
+  if [ $? -ne 0 ]; then
+    echo "Error: Failed to create lock"
+    return 1
+  fi
+
+  echo "Lock acquired on '$STACK_NAME': $S3_LOCK_PATH"
+}
+
 # plocal - Lock S3 state, backup, download locally, switch to local backend
 plocal() {
   local STACK_NAME="${1:-$(basename $(git rev-parse --show-toplevel 2>/dev/null))}"
