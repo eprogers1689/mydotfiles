@@ -26,8 +26,7 @@ function cleanup(){
 push() {
     git add .
     git commit -m $1
-    PR_URL=$(git push -u origin HEAD -o merge_request.create 2>&1 | grep -o 'https.*')
-    CLEAN_PR_URL=$(echo "$PR_URL" | tr -d '[:space:]')
+    CLEAN_PR_URL=$(git push -u origin HEAD -o merge_request.create 2>&1 | grep -o 'https://[^ ]*/-/merge_requests/[0-9]*')
     echo $CLEAN_PR_URL | pbcopy
     open $CLEAN_PR_URL
 }
