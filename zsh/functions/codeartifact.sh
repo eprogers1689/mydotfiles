@@ -28,5 +28,14 @@ EOF
 	chmod 600 "$env_file"
 
 	source "$env_file"
+
+	aws codeartifact login \
+		--profile rs-cicd \
+		--tool npm \
+		--domain "$domain" \
+		--domain-owner "$owner" \
+		--repository npm-aggregate \
+		--region "$region" >/dev/null || { echo "[ERROR] Failed to configure npm for CodeArtifact"; return 1; }
+
 	echo "CodeArtifact token refreshed. Expires in ~12h."
 }

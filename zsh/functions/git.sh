@@ -25,9 +25,18 @@ function cleanup(){
 
 push() {
     git add .
-    git commit -m $1
-    CLEAN_PR_URL=$(git push -u origin HEAD -o merge_request.create 2>&1 | grep -o 'https://[^ ]*/-/merge_requests/[0-9]*')
-    echo $CLEAN_PR_URL | pbcopy
-    open $CLEAN_PR_URL
-}
+    git commit -m "$1" || return
 
+    local PUSH_OUTPUT
+    PUSH_OUTPUT=$(git push -u origin HEAD -o merge_request.create 2>&1) || {
+        print -r -- "$PUSH_OUTPUT"
+        return 1
+    }
+
+    local CLEAN_PR_URL
+    CLEAN_PR_URL=$(print -r -- "$PUSH_OUTPUT" | grep -o 'https://[^ ]*/-/merge_requests/[0-9]*')
+    [[ -n "$CLEAN_PR_URL" ]] || return
+
+    print -r -- "$CLEAN_PR_URL" | pbcopy
+    open "$CLEAN_PR_URL"
+}

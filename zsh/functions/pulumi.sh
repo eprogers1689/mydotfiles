@@ -42,7 +42,7 @@ v () {
     CONTAINER_DEF=$(echo "$TASK_DEF" | jq '
         .inputs.containerDefinitions
         | fromjson
-        | map(select(.name != "log_router"))[0]
+        | map(select(.name != "log_router" and .name != "datadog-agent"))[0]
     ')
 
     VERSION=$(echo "$CONTAINER_DEF" | jq -r '.image' | cut -d ':' -f 2)
