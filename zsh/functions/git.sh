@@ -17,9 +17,9 @@ function gbs(){
 }
 
 function cleanup(){
-  git checkout master;
+  (git checkout master 2> /dev/null || git checkout main) || return
   git pull;
-  git branch | egrep -v "(^\*|master|test|qa)" | xargs git branch -D;
+  git branch | egrep -v "(^\*|master|main)" | xargs git branch -D;
 }
 
 
@@ -28,13 +28,16 @@ push() {
     git commit -m "$1" || return
 
     local PUSH_OUTPUT
-    PUSH_OUTPUT=$(git push -u origin HEAD -o merge_request.create 2>&1) || {
+    PUSH_OUTPUT=$(git push -u origin HEAD 2>&1) || {
         print -r -- "$PUSH_OUTPUT"
         return 1
     }
 
+    print -r -- "$PUSH_OUTPUT"
+
+    # GitHub prints a "create a pull request" link on first push of a branch
     local CLEAN_PR_URL
-    CLEAN_PR_URL=$(print -r -- "$PUSH_OUTPUT" | grep -o 'https://[^ ]*/-/merge_requests/[0-9]*')
+    CLEAN_PR_URL=$(print -r -- "$PUSH_OUTPUT" | grep -o 'https://github.com/[^ ]*/pull/new/[^ ]*' | head -1)
     [[ -n "$CLEAN_PR_URL" ]] || return
 
     print -r -- "$CLEAN_PR_URL" | pbcopy

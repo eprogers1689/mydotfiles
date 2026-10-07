@@ -10,8 +10,8 @@
     deleted = red
     untracked = yellow
 [user]
-    name = Ethan Rogers
-    email = ethan.rogers@daveramsey.com
+    name = eprogers1689
+    email = ethanrogers5@gmail.com
 [push]
     autoSetupRemote = true
 [init]
@@ -22,4 +22,6 @@
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 [credential]
-	helper = osxkeychain
+	helper = cache --timeout=3600
+[includeIf "gitdir:~/changepathways/"]
+	path = ~/.gitconfig-changepathways

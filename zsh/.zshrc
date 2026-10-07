@@ -75,7 +75,7 @@ COMPLETION_WAITING_DOTS="true"
 # Add wisely, as too many plugins slow down shell startup.
 plugins=(zsh-autosuggestions gitfast)
 
-source $ZSH/oh-my-zsh.sh
+[ -f $ZSH/oh-my-zsh.sh ] && source $ZSH/oh-my-zsh.sh
 
 # User configuration
 
@@ -125,7 +125,7 @@ for fname in $(find ~/mydotfiles/zsh/envs -name "*.sh*"); do
 done
 
 # Link zsh secrets
-for fname in $(find ~/mydotfiles/zsh/secrets -name "*.sh*"); do
+for fname in $(find ~/mydotfiles/zsh/secrets -name "*.sh*" 2>/dev/null); do
     source $fname
 done
 
@@ -136,32 +136,13 @@ set -o vi
 source ~/.zsh_prompt
 
 # z Jump Around - https://github.com/rupa/z - installed via git clone and sourced below
-source ~/z/z.sh
+[ -f ~/z/z.sh ] && source ~/z/z.sh
 
 # mise (asdf replacement)
-eval "$(mise activate zsh)"
+command -v mise >/dev/null && eval "$(mise activate zsh)"
+
+# Homebrew (linuxbrew on Linux) - sets HOMEBREW_PREFIX
+[ -x /home/linuxbrew/.linuxbrew/bin/brew ] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
 # zsh syntax highlighting - installed via homebrew (see Brewfile)
-source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-
-export PATH="/opt/homebrew/opt/mysql-client/bin:$PATH"
-
-export PATH="/Applications/IntelliJ IDEA.app/Contents/MacOS:$PATH"
-
-# BEGIN ramsey-cli managed block
-[ -f "$HOME/.ramsey/env" ] && . "$HOME/.ramsey/env"
-[ -x "$(command -v assume 2>/dev/null)" ] && alias assume="source assume"
-ramsey() {
-command ramsey "$@"
-local rc=$?
-case "$1" in
-login) ;;
-kafka-init) ;;
--c) case "${2:-}" in login|kafka-init) ;; *) return $rc ;; esac ;;
-*) return $rc ;;
-esac
-[ $rc -eq 0 ] && [ -f "$HOME/.ramsey/env" ] && . "$HOME/.ramsey/env"
-[ $rc -eq 7 ] && eval $SHELL  # SHELL_RESTART_REQUESTED
-return $rc
-}
-# END ramsey-cli managed block
+[ -f $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ] && source $HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

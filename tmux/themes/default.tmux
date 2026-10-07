@@ -30,4 +30,4 @@ setw -g window-status-style bg=black,fg=blue,default
 # -------------
 set -g status-left ''
 set -g status-right-length 150
-set -g status-right " #[fg=colour160] ♥ #[fg=colour69]#(bash ~/mydotfiles/tmux/scripts/remaining_battery.sh) | #(ifconfig | grep 172 | cut -d ' ' -f 2) | %I:%M %p "
+set -g status-right " #[fg=colour160] ♥ #[fg=colour69]#(bash ~/mydotfiles/tmux/scripts/remaining_battery.sh) | #(hostname -I | awk '{print $1}') | %I:%M %p "

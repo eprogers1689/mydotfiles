@@ -1,4 +1,8 @@
 
+# oh-my-zsh normally sets these up; do it here so the prompt works without it
+autoload -U colors && colors
+setopt prompt_subst
+
 _fishy_collapsed_wd() {
   echo $(pwd | perl -pe "
    BEGIN {
@@ -9,6 +13,7 @@ _fishy_collapsed_wd() {
 }
 
 _get_aws_account(){
+  [[ -z "$AWS_PROFILE" ]] && return
   aws_account_name=${AWS_PROFILE:u}
   if [[ "$aws_account_name" =~ "TEST" ]]; then
     echo "%{$fg_bold[green]%} $aws_account_name%{$reset_color%}"
@@ -18,42 +23,6 @@ _get_aws_account(){
     echo "%{$fg_bold[red]%} $aws_account_name"%{$reset_color%}
   else
     echo "%{$fg_bold[blue]%} $aws_account_name"%{$reset_color%}
-  fi
-}
-
-_creds_file_exists() {
-  if [ -f ~/.aws/credentials ]; then
-    echo 📜
-  else
-    echo ""
-  fi
-}
-
-# Get pulumi backend account number
-_get_pulumi_backend_account(){
-  if [[ ! -z "$PULUMI_BACKEND_URL" ]]; then
-    PULUMI_ACCOUNT_NUMBER=$(echo $PULUMI_BACKEND_URL | cut -d '-' -f4)
-    echo $(jq -r ".accountList[] | select( .accountId == \"$PULUMI_ACCOUNT_NUMBER\" ) | .accountName" ~/.aws/sso_accounts.json | tr a-z A-Z)
-  fi
-}
-
-# Check of Pulumi backend matches current AWS profile
-_compare_aws_pulumi_account(){
-  PULUMI=$( _get_pulumi_backend_account)
-  AWS_ACCOUNT_NAME=${AWS_PROFILE:u}
-  if [ ! -z ${AWS_PROFILE+x} ] && [ -n "$PULUMI" ]; then
-    if [[ "$AWS_ACCOUNT_NAME" =~ "$PULUMI" ]]; then
-      echo ' 🏆'
-    else
-      echo ' ❌'
-    fi
-  fi
-}
-
-# Check if we have a local pulumi stack with remote lock
-_plocal_status(){
-  if [ -n "$PLOCAL_LOCK_PATH" ]; then
-    echo " %{$fg_bold[magenta]%}🔒${PLOCAL_STACK_NAME}%{$reset_color%}"
   fi
 }
 
@@ -98,9 +67,6 @@ _get_pulumi_stack() {
   # Skip if not a Pulumi project
   [[ ! -f "Pulumi.yaml" ]] && return 0
 
-  # plocal mode is handled by _plocal_status(), so skip if that's active
-  [[ -n "$PLOCAL_STACK_NAME" ]] && return 0
-
   local stackname=""
 
   # Try workspace file first (fast, shows actually selected stack)
@@ -124,4 +90,4 @@ _get_pulumi_stack() {
 exit_code='%(?.👌.👎)'
 local user_color='cyan'; [ $UID -eq 0 ] && user_color='red'
 # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
-PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_creds_file_exists)$(_compare_aws_pulumi_account)$(_plocal_status)$(_get_pulumi_stack)$exit_code$(_prompt_git_branch)%{$reset_color%}$(_prompt_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
+PROMPT='%{$fg_bold[$user_color]%}$(_fishy_collapsed_wd)$(_get_aws_account)$(_get_pulumi_stack)$exit_code$(_prompt_git_branch)%{$reset_color%}$(_prompt_git_statuses)%{$fg_bold[$user_color]%}%{$fg[green]%}%(!.#. $)%{$reset_color%} '
