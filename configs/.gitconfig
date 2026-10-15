@@ -23,5 +23,3 @@
 	smudge = git-lfs smudge -- %f
 [credential]
 	helper = cache --timeout=3600
-[includeIf "gitdir:~/changepathways/"]
-	path = ~/.gitconfig-changepathways
